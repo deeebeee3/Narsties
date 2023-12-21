@@ -28,6 +28,11 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
+        cfg.Host(builder.Configuration["RabbitMq:Host"], "/", host =>
+        {
+            host.Username(builder.Configuration.GetValue("RabbitMq:Username", "guest"));
+            host.Password(builder.Configuration.GetValue("RabbitMq:Password", "guest"));
+        });
 
         cfg.ReceiveEndpoint("search-auction-created", e =>
         {
@@ -36,19 +41,19 @@ builder.Services.AddMassTransit(x =>
             e.ConfigureConsumer<AuctionCreatedConsumer>(context);
         });
 
-        cfg.ReceiveEndpoint("search-auction-updated", e =>
-        {
-            e.UseMessageRetry(r => r.Interval(5, 5));
+        // cfg.ReceiveEndpoint("search-auction-updated", e =>
+        // {
+        //     e.UseMessageRetry(r => r.Interval(5, 5));
 
-            e.ConfigureConsumer<AuctionUpdatedConsumer>(context);
-        });
+        //     e.ConfigureConsumer<AuctionUpdatedConsumer>(context);
+        // });
 
-        cfg.ReceiveEndpoint("search-auction-deleted", e =>
-        {
-            e.UseMessageRetry(r => r.Interval(5, 5));
+        // cfg.ReceiveEndpoint("search-auction-deleted", e =>
+        // {
+        //     e.UseMessageRetry(r => r.Interval(5, 5));
 
-            e.ConfigureConsumer<AuctionDeletedConsumer>(context);
-        });
+        //     e.ConfigureConsumer<AuctionDeletedConsumer>(context);
+        // });
 
         cfg.ConfigureEndpoints(context);
     });
